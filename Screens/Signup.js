@@ -18,19 +18,20 @@ const Signup = ({ navigation }) => {
 
   const saveUsername = async (value) => {
     setUsername(value);
-    await AsyncStorage.setItem("Name", username);
+   // await AsyncStorage.setItem("Name", username);
   };
   const savePassword = (value) => {
     setPassword(value);
   };
   const saveEmail = async (value) => {
     setEmail(value);
-    await AsyncStorage.setItem("Email", email);
+   // await AsyncStorage.setItem("Email", email);
   };
 
   const handleSignup = async () => {
-    await saveUsername(username);
-    await saveEmail(email);
+      // Convert email to lowercase and trim any whitespace
+    const trimmedEmail = email.trim().toLowerCase();
+    setEmail(trimmedEmail); 
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -52,12 +53,13 @@ const Signup = ({ navigation }) => {
       go_login();
     } catch (error) {
       console.error("Error signing up:", error.message);
-    }
+    } 
+   // go_login();
   };
 
   const go_login = () => {
-    console.log("go home");
-    navigation.navigate("Login");
+    console.log("g home");
+    navigation.navigate("Login",{email});
   };
 
   return (

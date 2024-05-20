@@ -9,25 +9,22 @@ import {
 } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../Firebase_File.js";
+import { useRoute } from "@react-navigation/native";
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
 
-  useEffect(() => {
-    const fetchemail = async () => {
-      try {
-        const storedEmail = await AsyncStorage.getItem("Email");
-        if (storedEmail !== null) {
-          setEmail(storedEmail);
-        }
-      } catch (e) {
-        console.error("Failed to fetch the email from storage", e);
-      }
-    };
+  const route=useRoute();
+  const propEmail = route.params?.email || "";
 
-    fetchemail();
-  }, []);
+  useEffect(() => {
+    if (propEmail) {
+      setEmail(propEmail);
+    }
+      
+  }, [propEmail]);
+
 
   const saveEmail = (value) => {
     setEmail(value);
@@ -39,16 +36,17 @@ const Login = ({ navigation }) => {
 
   //----->
   const handleLogin = async () => {
-    if (email !== null) {
+  
+    const trimmedEmail = email.trim().toLowerCase();
+    setEmail(trimmedEmail);
+    console.log(trimmedEmail)
       try {
-        await AsyncStorage.setItem("Email", email);
-        console.log("Stored email from AsyncStorage:", email);
+        await AsyncStorage.setItem("Email", trimmedEmail);
+      console.log("Stored email from AsyncStorage:", trimmedEmail);
       } catch (e) {
         console.error("Failed to retrieve  email from storage", e);
       }
-    } else {
-      setEmail(await AsyncStorage.getItem("Email"));
-    }
+    
 
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -71,7 +69,7 @@ const Login = ({ navigation }) => {
   };
 
   const go_home = () => {
-    navigation.navigate("Home");
+    navigation.navigate("DrawerNavigation")
   };
 
   return (
