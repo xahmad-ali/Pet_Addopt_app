@@ -18,6 +18,7 @@ const UploadAnimalIamge = ({route}) => {
     const id = route.params.animalId;
         if (id) {
             setAnimalId(id);
+            console.log("im animal Id:",animalId);
         }
     // getAnimalId();
    },[])
@@ -41,7 +42,7 @@ const UploadAnimalIamge = ({route}) => {
     const response = await fetch(uri);
     const blob = await response.blob(); //converts in binary
 
-    const storageRef = ref(storage, "AnimalImages/" ,""+animalId, new Date().getTime());
+    const storageRef = ref(storage, `AnimalImages/${animalId}/${new Date().getTime()}`);
     const uploadTask = uploadBytesResumable(storageRef, blob);
 
     uploadTask.on('state_changed',

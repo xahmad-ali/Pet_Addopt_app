@@ -19,27 +19,21 @@ const DonateAnimal = () => {
     setBreed(breed);
     setanimalType(animalType);
     setanimalAge(animalAge);
-
+  
     try {
       const storedEmail = await AsyncStorage.getItem("Email");
       if (storedEmail) {
-        console.log(
-          "this is email from AsyncStorage from loginScreen ",
-          storedEmail
-        );
+        console.log("this is email from AsyncStorage from loginScreen ", storedEmail);
         const userData = await fetchUser(storedEmail);
         if (userData) {
-          setUserId(userData.id);
-          console.log("value too", userId);
-
-          // Now that userId is set, proceed to add data to Firestore
+          const fetchedUserId = userData.id;
+          console.log("my valu userData: ", fetchedUserId);
+          setUserId(fetchedUserId); // Update state for future use
+          console.log("my valu userId: ", fetchedUserId);
+  
+          // Use fetchedUserId directly for Firestore operations
           try {
-            const usersCollectionRef = collection(
-              db,
-              "Owner",
-              "" + userId,
-              "animalInfo"
-            );
+            const usersCollectionRef = collection(db, "Owner",""+fetchedUserId, "animalInfo");
             const docRef = await addDoc(usersCollectionRef, {
               AnimalName: animalName,
               AnimalType: animalType,
@@ -52,13 +46,14 @@ const DonateAnimal = () => {
             go_UploadIamge(docRef.id);
           } catch (error) {
             console.error("Error adding document:", error.message);
-          }
-        }
+          } 
+        } 
       }
     } catch (error) {
       console.error("Error getting user email:", error.message);
-    }          
+    }
   };
+  
 
   const navigation = useNavigation();
   const go_UploadIamge = (animalId) => {
