@@ -7,6 +7,7 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 import { FontAwesome5 } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
+
 const Profile = () => {
   const [email,setEmail]=useState(null);
   const [username, setUsername] = useState("");

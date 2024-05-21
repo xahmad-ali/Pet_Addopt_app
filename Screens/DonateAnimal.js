@@ -33,8 +33,9 @@ const DonateAnimal = () => {
   
           // Use fetchedUserId directly for Firestore operations
           try {
-            const usersCollectionRef = collection(db, "Owner",""+fetchedUserId, "animalInfo");
+            const usersCollectionRef = collection(db, "animalinfo");
             const docRef = await addDoc(usersCollectionRef, {
+              OwnerId:fetchedUserId,
               AnimalName: animalName,
               AnimalType: animalType,
               AnimalBreed: breed,

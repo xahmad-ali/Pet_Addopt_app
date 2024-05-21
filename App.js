@@ -11,6 +11,7 @@ import Login from './Screens/Login.js';
 import Signup from './Screens/Signup.js';
 import { Profile } from './Screens/Profile.js';
 import { UploadAnimalIamge } from './Screens/UploadAnimalIamge.js';
+import { ChattingConcern } from './Screens/ChattingConcern.js';
 
 
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -64,6 +65,7 @@ export default function App() {
         <Stack.Screen name="Signup" component={Signup} />
         <Stack.Screen name="DrawerNavigation" component={DrawerNavigation}  options={{ headerShown: false }}/>
         <Stack.Screen name="UploadAnimalIamge" component={UploadAnimalIamge} />
+        <Stack.Screen name="ChattingConcern" component={ChattingConcern} />
         
       </Stack.Navigator>
     </NavigationContainer>

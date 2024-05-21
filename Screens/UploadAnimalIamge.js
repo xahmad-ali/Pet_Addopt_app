@@ -14,14 +14,12 @@ const UploadAnimalIamge = ({route}) => {
   const [animalId, setAnimalId] = useState(null);
   const [uploadStatus,setUploadStatus]=useState(false);
 
-   useEffect(()=>{
-    const id = route.params.animalId;
-        if (id) {
-            setAnimalId(id);
-            console.log("im animal Id:",animalId);
-        }
-    // getAnimalId();
-   },[])
+  useEffect(() => {
+    if (route.params?.animalId) {
+      setAnimalId(route.params.animalId);
+      console.log("Animal ID:", route.params.animalId);
+    }
+  }, [route.params?.animalId]);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -42,7 +40,7 @@ const UploadAnimalIamge = ({route}) => {
     const response = await fetch(uri);
     const blob = await response.blob(); //converts in binary
 
-    const storageRef = ref(storage, `AnimalImages/${animalId}/${new Date().getTime()}`);
+    const storageRef = ref(storage, "AnimalMedia/" +""+animalId, new Date().getTime());
     const uploadTask = uploadBytesResumable(storageRef, blob);
 
     uploadTask.on('state_changed',
