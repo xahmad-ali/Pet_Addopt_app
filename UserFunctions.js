@@ -1,5 +1,5 @@
 import { auth,db } from './Firebase_File.js';
-import { collection, query, where, getDocs,onSnapshot } from "firebase/firestore";
+import { collection,getDoc, query, where, getDocs,onSnapshot,doc } from "firebase/firestore";
 import React, { useState } from 'react';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
@@ -157,9 +157,29 @@ const get_currentUser = async () => {
   
   
   
+  const fetchUserDataById = async (userId) => {
+    try {
+      console.log("=> in fuction",userId)
+      const userDocRef = doc(collection(db, "users"), userId);
+      const userDoc = await getDoc(userDocRef);
+      console.log("i a in the function ")
   
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        console.log("User data:", userData);
+        return {
+          id: userDoc.id,
+          ...userData,
+        };
+      } else {
+        console.log("No such user!");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error.message);
+      return null;
+    }
+  };
 
-  
 
-
-export {get_currentUser,fetchUser,fetchAnimalData,fetch_media_fireStorage};
+export {get_currentUser,fetchUser,fetchAnimalData,fetch_media_fireStorage,fetchUserDataById};

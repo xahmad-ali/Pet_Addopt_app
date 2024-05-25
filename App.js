@@ -12,6 +12,10 @@ import Signup from './Screens/Signup.js';
 import { Profile } from './Screens/Profile.js';
 import { UploadAnimalIamge } from './Screens/UploadAnimalIamge.js';
 import { ChattingConcern } from './Screens/ChattingConcern.js';
+import { Chatting } from './Screens/Chatting.js';
+import { AllChats } from './Screens/AllChats.js';
+
+
 
 
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -32,6 +36,8 @@ function DrawerNavigation() {
        <Drawer.Screen name="MyTabs" component={MyTabs} />
       <Drawer.Screen name="AdoptAnimal" component={AdoptAnimal} />
       <Drawer.Screen name="DonateAnimal" component={DonateAnimal} />
+      <Drawer.Screen name="AllChats" component={AllChats} />
+
     </Drawer.Navigator>
   );
 };
@@ -57,17 +63,21 @@ function MyTabs() {
 
 export default function App() {
   return (
+  
+
     <NavigationContainer>
       <Stack.Navigator>
-      
         <Stack.Screen name="Welcome" component={Welcome} options={{ headerShown: true }} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Signup" component={Signup} />
         <Stack.Screen name="DrawerNavigation" component={DrawerNavigation}  options={{ headerShown: false }}/>
         <Stack.Screen name="UploadAnimalIamge" component={UploadAnimalIamge} />
         <Stack.Screen name="ChattingConcern" component={ChattingConcern} />
-        
+    
+        <Stack.Screen name="Chatting" component={Chatting} />
       </Stack.Navigator>
     </NavigationContainer>
+  
+
   );
 }

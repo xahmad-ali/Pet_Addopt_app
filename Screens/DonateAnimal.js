@@ -4,7 +4,7 @@ import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import { auth, db } from "../Firebase_File.js";
 import { addDoc, collection } from "firebase/firestore";
-import { fetchUser, get_currentUser } from "../UserFunctions.js";
+import { fetchUser } from "../UserFunctions.js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const DonateAnimal = () => {
