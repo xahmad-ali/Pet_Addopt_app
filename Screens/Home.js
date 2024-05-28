@@ -1,82 +1,106 @@
-import { View, Text,StyleSheet } from 'react-native'
 import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { auth } from '../Firebase_File';
 import { signOut } from 'firebase/auth';
 
-
 const Home = () => {
+  const navigation = useNavigation();
 
-    
-    const navigation = useNavigation();
-    const goBack = () => {
-        console.log("i do nothing ")
-        console.log("i am global",global.currentUserId)
-      };
-
-      const logOut = async()=>{
-        try {
-          await signOut(auth);
-          navigation.replace('Login'); 
-        } catch (error) {
-          console.error('Error logging out: ', error);
-        }
-      };
-
+  const logOut = async () => {
+    try {
+      await signOut(auth);
+      navigation.replace('Login');
+    } catch (error) {
+      console.error('Error logging out: ', error);
+    }
+  };
 
   return (
-    <View style={{padding:30}}>
-      <Text>Home</Text>
-      <TouchableOpacity style={{width:100,borderRadius:20,backgroundColor:'pink'}}
-        
-        onPress={goBack}
-      >
-        <Text>Go Back</Text>
+    <ImageBackground
+      source={require('../assets/kk.jpg')}
+      style={styles.container}
+      blurRadius={2}
+    >
+      <TouchableOpacity style={styles.drawerIcon} onPress={() => navigation.openDrawer()}>
+        <Image
+          source={require('../assets/menu.png')}
+          style={{ width: 30, height: 30 }}
+        />
       </TouchableOpacity>
-
-      <View style={{padding:20}}>
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: "plum" }]}
-        onPress={logOut}
-      >
-        <Text style={styles.buttonText}>LogOut</Text>
-      </TouchableOpacity>
+      <View style={styles.content}>
+        <Image 
+          source={require('../assets/paw.png')}
+          style={styles.pawImage}
+        />
+        <Text style={styles.logo}>Pet Haven.co</Text>
+        <Text style={styles.description}>
+          Welcome to Pet Haven, where we strive to find loving homes for animals in need. 
+          Our mission is to rescue, rehabilitate, and rehome pets, providing them with 
+          a second chance at a happy life. 
+        </Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={logOut}
+        >
+          <Text style={styles.buttonText}>Log Out</Text>
+        </TouchableOpacity>
       </View>
-    </View>
-  )
+    </ImageBackground>
+  );
 };
 
-
 const styles = StyleSheet.create({
+  drawerIcon: {
+    position: 'absolute',
+    top: 40, // Adjust according to your needs
+    left: 10, // Adjust according to your needs
+    zIndex: 1, // Ensure it's above other components
+  },
+  pawImage: {
+    width: 50,
+    height: 50,
+    position: 'relative',
+  },
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  inputContainer: {
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logo: {
+    fontSize: 70,
+    fontWeight: '300',
+    color: '#d2691e',
+    top: 1,
+    alignSelf: 'flex-start',
+  },
+  description: {
+    textAlign: 'center',
     marginBottom: 20,
-  },
-  input: {
-    width: 250,
-    height: 40,
-    borderWidth: 1,
-    borderColor: "gray",
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
+    color: 'grey',
+    fontSize: 16,
   },
   button: {
-    width: 250,
+    position: 'absolute',
+    top: 40,
+    right: 10,
+    width: 80,
     height: 40,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 5
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'grey',
+    borderRadius: 5,
+    fontWeight: '200'
   },
   buttonText: {
-    color: "white",
-    fontWeight: "bold",
+    color: 'white',
+    fontWeight: '300',
   },
 });
 
-export default Home;
+export { Home };

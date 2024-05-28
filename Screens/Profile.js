@@ -1,5 +1,13 @@
-import { View, Text, StyleSheet, Image } from "react-native";
 import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ImageBackground,
+  ActivityIndicator,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchUser } from "../UserFunctions.js";
 import * as ImagePicker from "expo-image-picker";
@@ -8,18 +16,23 @@ import {
   ref,
   uploadBytesResumable,
   getDownloadURL,
+  getMetadata,
+  deleteObject,
 } from "firebase/storage";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native-gesture-handler";
 
 const Profile = () => {
   const [email, setEmail] = useState(null);
   const [username, setUsername] = useState("");
   const [userId, setUserId] = useState("");
   const [imageUri, setImageUri] = useState("");
-  const [uploadStatus, setUploadStatus] = useState(false);
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [city, setCity] = useState("");
 
-  //////////////////////////////
+  const [uploadStatus, setUploadStatus] = useState(false);
+  const [imageMetadata, setImageMetadata] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const getEmail = async () => {
       try {
@@ -27,13 +40,15 @@ const Profile = () => {
         if (storedEmail) {
           setEmail(storedEmail);
           console.log(
-            "this   is  email from AscynS from loginSCreen  ",
+            "this is email from AsyncStorage from loginScreen",
             storedEmail
           );
           const userData = await fetchUser(storedEmail);
           if (userData) {
             setUsername(userData.userName);
             setUserId(userData.id);
+            setDateOfBirth(userData.DOB);
+            setCity(userData.City);
           }
         }
       } catch (error) {
@@ -43,20 +58,17 @@ const Profile = () => {
 
     getEmail();
   }, []);
-  //////////////////////////
+
   useEffect(() => {
     if (userId) {
-      fetch_media_fireStorage();
+      fetchMediaFireStorage();
     }
   }, [userId, uploadStatus]);
-  ///////////////////////////////////////
 
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
-      // allowsMultipleSelection: true,
       aspect: [4, 3],
       quality: 1,
     });
@@ -64,69 +76,91 @@ const Profile = () => {
     console.log(result);
 
     if (!result.canceled) {
-      on_fireStorage(result.assets[0].uri); // Pass the uri to the on_fireStorage function
+      // setLoading(true);
+      const exist = await getImageMetadata(userId);
+      if (exist) {
+        await deleteImage(userId);
+      }
+      onFireStorage(result.assets[0].uri);
+    }
+  };
+
+  const deleteImage = async (userId) => {
+    try {
+      const desertRef = ref(storage, `UserImage/${userId}`);
+      await deleteObject(desertRef);
+      console.log("Previous image deleted");
+    } catch (error) {
+      console.error("Error deleting previous image:", error);
+    }
+  };
+
+  const getImageMetadata = async (userId) => {
+    try {
+      const storageRef = ref(storage, `UserImage/${userId}`);
+      const metadata = await getMetadata(storageRef);
+      console.log("Image metadata:", metadata);
+      setImageMetadata(metadata);
+      return metadata;
+    } catch (error) {
+      if (error.code === "storage/object-not-found") {
+        console.log("Image does not exist");
+      } else {
+        console.error("Error retrieving image metadata:", error);
+      }
+      return null;
     }
   };
 
   const storage = getStorage();
-  const on_fireStorage = async (uri) => {
-    const response = await fetch(uri);
-    const blob = await response.blob(); //converts in binary
 
-    const storageRef = ref(
-      storage,
-      "UserImage/" + "" + userId,
-      new Date().getTime()
-    );
-    const uploadTask = uploadBytesResumable(storageRef, blob);
+  const onFireStorage = async (uri) => {
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        // Observe state change events such as progress, pause, and resume
-        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log("Upload is " + progress + "% done");
-        switch (snapshot.state) {
-          case "paused":
-            console.log("Upload is paused");
-            break;
-          case "running":
-            console.log("Upload is running");
-            break;
-        }
-      },
-      (error) => {
-        // Handle unsuccessful uploads
-        console.log(error);
-        Alert.alert("Error", "There was an error uploading the image.");
-      },
-      () => {
-        // Handle successful uploads on complete
-        // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+      const storageRef = ref(storage, `UserImage/${userId}`);
+      const uploadTask = uploadBytesResumable(storageRef, blob);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log("Upload is " + progress + "% done");
+          switch (snapshot.state) {
+            case "paused":
+              console.log("Upload is paused");
+              break;
+            case "running":
+              console.log("Upload is running");
+              break;
+          }
+        },
+        (error) => {
+          console.error("Error uploading image:", error);
+          Alert.alert("Error", "There was an error uploading the image.");
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           console.log("File available at", downloadURL);
           setImageUri(downloadURL);
           setUploadStatus(true);
-        });
-      }
-    );
+        }
+      );
+    } catch (error) {
+      console.error("Error during upload:", error);
+    }
   };
 
-  const fetch_media_fireStorage = async () => {
+  const fetchMediaFireStorage = async () => {
     try {
-      // Create a reference to the image in Firebase Storage
       const storageRef = ref(storage, `UserImage/${userId}`);
-
-      // Get the download URL of the image
       const downloadURL = await getDownloadURL(storageRef);
       console.log("Image download URL:", downloadURL);
-
       setImageUri(downloadURL);
-      //await AsyncStorage.setItem("ImageURL",downloadURL)
+      setLoading(false);
 
-      // Return the download URL
       return downloadURL;
     } catch (error) {
       if (error.code === "storage/object-not-found") {
@@ -134,33 +168,48 @@ const Profile = () => {
       } else {
         console.error("Error retrieving image download URL:", error);
       }
+      setLoading(false);
       return null;
     }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={{ flex: 0.3 }}>
-        <Image
-          style={styles.tinyLogo}
-          source={
-            imageUri ? { uri: imageUri } : require("../assets/profile.png")
-          }
-        />
-        <TouchableOpacity onPress={pickImage}>
-          <FontAwesome5 name="folder-plus" size={26} color="black" />
-        </TouchableOpacity>
-      </View>
-      <View style={{ flex: 0.3 }}>
-        <Text>Email: {email}</Text>
-      </View>
-      <View style={{ flex: 0.3 }}>
-        <Text>UserName: {username}</Text>
-      </View>
-      <View style={{ flex: 0.3 }}>
-        <Text>User ID: {userId}</Text>
-      </View>
-    </View>
+    <ImageBackground
+      source={require("../assets/eeb.jpg")}
+      style={styles.container}
+      blurRadius={3}
+    >
+      {loading ? (
+        <View style={styles.activityContainer}>
+          <ActivityIndicator size="large" color="#00ff00" />
+        </View>
+      ) : (
+        <View style={styles.container}>
+          <Text style={styles.title}>Profile</Text>
+          <View style={styles.content}>
+            <Image
+              source={
+                imageUri ? { uri: imageUri } : require("../assets/profile.jpg")
+              }
+              style={styles.image}
+            />
+            <TouchableOpacity
+              onPress={pickImage}
+              style={styles.changePicButton}
+            >
+              <Text style={styles.changePicButtonText}>Change Picture</Text>
+            </TouchableOpacity>
+            <View style={styles.userInfo}>
+              <Text style={styles.text1}>Email: {email}</Text>
+              <Text style={styles.text2}>Username: {username}</Text>
+              <Text style={styles.text3}>User ID: {userId}</Text>
+              <Text style={styles.text3}>Date of Birth: {dateOfBirth}</Text>
+              <Text style={styles.text3}>City: {city}</Text>
+            </View>
+          </View>
+        </View>
+      )}
+    </ImageBackground>
   );
 };
 
@@ -170,32 +219,66 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  inputContainer: {
-    marginBottom: 20,
+  title: {
+    fontWeight: "300",
+    fontSize: 60,
+    textAlign: "center",
+    color: "peru",
+    padding: 15,
+    marginTop: 30,
   },
-  tinyLogo: {
-    width: 100,
-    height: 100,
-  },
-  input: {
-    width: 250,
-    height: 40,
-    borderWidth: 1,
-    borderColor: "gray",
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-  },
-  button: {
-    width: 250,
-    height: 40,
+  content: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 5,
+    width: "100%",
   },
-  buttonText: {
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 10,
+  },
+  changePicButton: {
+    backgroundColor: "peru",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+  changePicButtonText: {
     color: "white",
-    fontWeight: "bold",
+    fontWeight: "300",
+  },
+  userInfo: {
+    padding: 10,
+    borderRadius: 10,
+    width: "80%",
+    maxWidth: 400,
+    marginBottom: 100,
+  },
+  text1: {
+    fontSize: 20,
+    marginBottom: 10,
+    fontWeight: "300",
+    color: "white",
+    backgroundColor: "peru",
+    padding: 5,
+  },
+  text2: {
+    fontSize: 20,
+    marginBottom: 10,
+    fontWeight: "300",
+    color: "white",
+    backgroundColor: "peru",
+    padding: 5,
+  },
+  text3: {
+    fontSize: 20,
+    marginBottom: 10,
+    fontWeight: "300",
+    color: "white",
+    backgroundColor: "peru",
+    padding: 5,
   },
 });
 

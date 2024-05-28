@@ -29,6 +29,7 @@ const AllChats = () => {
           const userData = await fetchUser(storedEmail);
           if (userData) {
             await fetchChatUsers(userData.id);
+            
           }
         }
       } catch (error) {
@@ -54,6 +55,8 @@ const AllChats = () => {
           id: doc.id,
           Email: doc.data().Email,
           UserName: doc.data().UserName,
+          City:doc.data().City,
+          Dob:doc.data().DOB
         });
       });
 
@@ -114,6 +117,8 @@ const AllChats = () => {
       )}
       <Text>{item.UserName}</Text>
       <Text>{item.Email}</Text>
+      <Text>{item.City}</Text>
+
     </TouchableOpacity>
   );
 

@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, Alert } from "react-native";
+import { View, Text, StyleSheet, Alert , ImageBackground,ActivityIndicator} from "react-native";
 import React, { useState } from "react";
 import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
-import { auth, db } from "../Firebase_File.js";
+import { auth,db } from "../Firebase_File.js";
 import { addDoc, collection } from "firebase/firestore";
 import { fetchUser } from "../UserFunctions.js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -13,6 +13,7 @@ const DonateAnimal = () => {
   const [animalType, setanimalType] = useState(null);
   const [animalAge, setanimalAge] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [loading,setLoading]=useState(false);
 
   const saveInfo = async () => {
     setAnimalName(animalName);
@@ -21,6 +22,7 @@ const DonateAnimal = () => {
     setanimalAge(animalAge);
   
     try {
+      setLoading(true);
       const storedEmail = await AsyncStorage.getItem("Email");
       if (storedEmail) {
         console.log("this is email from AsyncStorage from loginScreen ", storedEmail);
@@ -31,7 +33,9 @@ const DonateAnimal = () => {
           setUserId(fetchedUserId); // Update state for future use
           console.log("my valu userId: ", fetchedUserId);
   
-          // Use fetchedUserId directly for Firestore operations
+          
+
+          /////yee haii wo 
           try {
             const usersCollectionRef = collection(db, "animalinfo");
             const docRef = await addDoc(usersCollectionRef, {
@@ -43,6 +47,7 @@ const DonateAnimal = () => {
               createdAt: new Date().getTime(),
             });
             console.log("Document written with ID:", docRef.id);
+            setLoading(false);
             console.log("info uploaded ");
             go_UploadIamge(docRef.id);
           } catch (error) {
@@ -62,53 +67,77 @@ const DonateAnimal = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Animal Type(cat / dog)"
-          value={animalType}
-          onChangeText={setanimalType}
-        />
+    <ImageBackground
+      source={require('../assets/cf.jpg')}
+      style={styles.container}
+      blurRadius={2}
+    >
+      <View style={styles.container}>
+        <View>
+          <Text style={{
+            padding: 30,
+            fontSize: 50,
+            textAlign: 'center',
+            color: 'peru',
+            fontWeight: '300',
+          }}>
+            Pet Haven Donation
+          </Text>
+        </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Animal Type(cat / dog)"
+            value={animalType}
+            onChangeText={setanimalType}
+          />
+        </View>
+  
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Animal Name"
+            value={animalName}
+            onChangeText={setAnimalName}
+          />
+        </View>
+  
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Animal Breed i.e(cat-persian)"
+            value={breed}
+            onChangeText={setBreed}
+          />
+        </View>
+  
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Animal Age"
+            value={animalAge}
+            onChangeText={setanimalAge}
+          />
+        </View>
+  
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: "peru" }]}
+          onPress={saveInfo}
+        >
+          <Text style={styles.buttonText}>Save</Text>
+        </TouchableOpacity>
+  
+        {loading && (
+          <ActivityIndicator
+            style={styles.activityIndicator}
+            size="large"
+            color="peru"
+          />
+        )}
       </View>
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Animal Name"
-          value={animalName}
-          onChangeText={setAnimalName}
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Animal Breed i.e(cat-persian)"
-          value={breed}
-          onChangeText={setBreed}
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Animal Age"
-          // keyboardType='numeric'
-          value={animalAge}
-          onChangeText={setanimalAge}
-        />
-      </View>
-
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: "plum" }]}
-        onPress={saveInfo}
-      >
-        <Text style={styles.buttonText}>Save</Text>
-      </TouchableOpacity>
-    </View>
+    </ImageBackground>
   );
-};
+}  
 
 const styles = StyleSheet.create({
   container: {
@@ -123,13 +152,13 @@ const styles = StyleSheet.create({
     width: 250,
     height: 40,
     borderWidth: 1,
-    borderColor: "gray",
+    borderColor: "peru",
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
   },
   button: {
-    width: 250,
+    width: 100,
     height: 40,
     justifyContent: "center",
     alignItems: "center",
@@ -137,7 +166,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "white",
-    fontWeight: "bold",
+    fontWeight: "300",
   },
 });
 

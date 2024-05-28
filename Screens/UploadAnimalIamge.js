@@ -1,4 +1,4 @@
-import { View, Text,StyleSheet } from "react-native";
+import { View, Text,StyleSheet,ActivityIndicator } from "react-native";
 import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -13,6 +13,7 @@ const UploadAnimalIamge = ({route}) => {
 
   const [animalId, setAnimalId] = useState(null);
   const [uploadStatus,setUploadStatus]=useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (route.params?.animalId) {
@@ -20,6 +21,7 @@ const UploadAnimalIamge = ({route}) => {
       console.log("Animal ID:", route.params.animalId);
     }
   }, [route.params?.animalId]);
+
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -31,6 +33,7 @@ const UploadAnimalIamge = ({route}) => {
     });
     console.log(result);
     if (!result.canceled) {
+      setLoading(true);
       on_fireStorage(result.assets[0].uri); // Pass the uri to the on_fireStorage function
     }
   };
@@ -62,6 +65,7 @@ const UploadAnimalIamge = ({route}) => {
             // Handle unsuccessful uploads
             console.log(error)
             Alert.alert('Error', 'There was an error uploading the image.');
+            setLoading(false);
         },
         () => {
             // Handle successful uploads on complete
@@ -69,6 +73,7 @@ const UploadAnimalIamge = ({route}) => {
             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                 console.log('File available at', downloadURL)
                // setImageUri(downloadURL);
+               setLoading(false);
                 setUploadStatus(true);
                 goBackTwoScreens();
             });
@@ -81,15 +86,23 @@ const goBackTwoScreens = () => {
   navigation.goBack();
 };
 
-  return (
-    <View style={styles.container}>
-        <TouchableOpacity 
-       // style={styles.button}
-          onPress={pickImage}>
+return (
+  <View style={styles.container}>
+    {loading ? (
+      <View style={[styles.activity, styles.horizontal]}>
+        <ActivityIndicator size="large" color="peru" />
+      </View>
+    ) : (
+      <View style={styles.container}>
+        <TouchableOpacity onPress={pickImage}>
           <FontAwesome5 name="folder-plus" size={86} color="black" />
         </TouchableOpacity>
       </View>
-  );
+    )}
+  </View>
+);
+
+  
 };
 
 
