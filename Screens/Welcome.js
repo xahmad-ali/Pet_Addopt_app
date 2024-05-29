@@ -1,80 +1,97 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Image, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
+const { width, height } = Dimensions.get('window');
+
 const Welcome = () => {
-    const navigation = useNavigation();
+  const navigation = useNavigation();
 
-    const logining = () => {
-        navigation.navigate('Login');
-    }
+  const logining = () => {
+    navigation.navigate('Login');
+  };
 
-    const signing = () => {
-        navigation.navigate('Signup');
-    }
+  const signing = () => {
+    navigation.navigate('Signup');
+  };
 
-    return (
-        <View style={styles.container}>
-            <TouchableOpacity
-                style={[styles.button, { backgroundColor: 'grey' }]} 
-                onPress={logining}>
-                <Text style={styles.buttonText}>Login</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.textstyle1}>Have not registered yet?</Text>
-
-            <TouchableOpacity
-                style={[styles.button, { backgroundColor: 'plum' }]} 
-                onPress={signing}>
-                <Text style={styles.buttonText}>Sign Up</Text>
-            </TouchableOpacity>
-         
-        </View>
-    )
-}
+  return (
+    <ImageBackground 
+      source={require('../assets/2.jpg')} 
+      style={styles.background}
+      blurRadius={2}
+    >
+      <View style={styles.container}>
+        <Image 
+          source={require('../assets/paw.png')}
+          style={styles.pawImage}
+        />
+        <Text style={styles.logo}>Pet Haven</Text>
+      </View>
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: 'hsl(30, 40%, 70%)' }]}
+          onPress={logining}
+        >
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.container}>
+        <Text style={styles.textstyle1}>Ready to adopt more paw friends?</Text>
+      </View>
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: 'peru' }]}
+          onPress={signing}
+        >
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
+  );
+};
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    button: {
-        width: 150,
-        height: 50,
-        borderRadius: 25,
-        marginVertical: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    buttonText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: 'white',
-    },
-    textstyle: {
-        fontSize: 40,
-        marginBottom: 10,
-        fontWeight: 'bold',
-        color: 'plum',
-        backgroundColor: 'lavender',
-        width: 370,
-        textAlign: 'center',
-        textAlignVertical: 'center',
-    },
-    textstyle1: {
-        fontSize: 15,
-        marginTop: 10,
-        marginBottom: 8,
-        color: 'purple',
-        textAlign: 'center',
-        width: 350,
-    },
-    image1: {
-        marginBottom: 10,
-        width: 350,
-        height: 380,
-    }
+  logo: {
+    fontSize: width * 0.12, // Adjusted font size
+    fontWeight: '600',
+    color: '#d2691e',
+    marginBottom: height * 0.4, // Adjusted margin bottom
+  },
+  background: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center',
+  },
+  container: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: height * 0.02, // Adjusted margin bottom
+  },
+  pawImage: {
+    width: width * 0.12, 
+    height: width * 0.12,
+    marginBottom: height * 0.02, // Adjusted margin bottom
+  },
+  button: {
+    width: width * 0.35, // Adjusted width
+    height: height * 0.06, // Adjusted height
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    fontSize: width * 0.045, // Adjusted font size
+    fontWeight: '300',
+    color: 'white',
+  },
+  textstyle1: {
+    fontSize: width * 0.04, // Adjusted font size
+    color: 'brown',
+    textAlign: 'center',
+    width: width * 0.9, // Adjusted width
+    fontWeight: '300',
+  },
 });
 
 export { Welcome };

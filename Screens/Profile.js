@@ -7,6 +7,7 @@ import {
   Image,
   ImageBackground,
   ActivityIndicator,
+  TextInput
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchUser } from "../UserFunctions.js";
@@ -175,40 +176,77 @@ const Profile = () => {
 
   return (
     <ImageBackground
-      source={require("../assets/eeb.jpg")}
-      style={styles.container}
-      blurRadius={3}
+      source={require("../assets/a7.jpg")}
+      blurRadius={2}
+      style={styles.backgroundImage}
     >
-      {loading ? (
-        <View style={styles.activityContainer}>
-          <ActivityIndicator size="large" color="#00ff00" />
-        </View>
-      ) : (
-        <View style={styles.container}>
-          <Text style={styles.title}>Profile</Text>
-          <View style={styles.content}>
-            <Image
-              source={
-                imageUri ? { uri: imageUri } : require("../assets/profile.jpg")
-              }
-              style={styles.image}
-            />
-            <TouchableOpacity
-              onPress={pickImage}
-              style={styles.changePicButton}
-            >
+      <View style={styles.container}>
+        {loading ? (
+          <View style={styles.activityContainer}>
+            <ActivityIndicator size="large" color="peru" />
+          </View>
+        ) : (
+          <>
+            <View>
+              <Text style={styles.profileTitle}>Profile</Text>
+            </View>
+            <View style={styles.header}>
+              <Image
+                source={
+                  imageUri ? { uri: imageUri } : require("../assets/profile.jpg")
+                }
+                style={styles.image}
+              />
+              <Text style={styles.name}>{username}</Text>
+            </View>
+            <TouchableOpacity onPress={pickImage} style={styles.changePicButton}>
               <Text style={styles.changePicButtonText}>Change Picture</Text>
             </TouchableOpacity>
             <View style={styles.userInfo}>
-              <Text style={styles.text1}>Email: {email}</Text>
-              <Text style={styles.text2}>Username: {username}</Text>
-              <Text style={styles.text3}>User ID: {userId}</Text>
-              <Text style={styles.text3}>Date of Birth: {dateOfBirth}</Text>
-              <Text style={styles.text3}>City: {city}</Text>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Email:</Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={email}
+                  editable={false}
+                  placeholder="Email"
+                  placeholderTextColor="#aaa"
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Username:</Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={username}
+                  editable={false}
+                  placeholder="Username"
+                  placeholderTextColor="#aaa"
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>DOB:</Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={dateOfBirth}
+                  editable={false}
+                  placeholder="Date of Birth"
+                  placeholderTextColor="#aaa"
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>City:</Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={city}
+                  editable={false}
+                  placeholder="City"
+                  placeholderTextColor="#aaa"
+                />
+              </View>
             </View>
-          </View>
-        </View>
-      )}
+          </>
+        )}
+      </View>
     </ImageBackground>
   );
 };
@@ -218,31 +256,34 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    padding: 20,
   },
-  title: {
-    fontWeight: "300",
-    fontSize: 60,
-    textAlign: "center",
-    color: "peru",
-    padding: 15,
-    marginTop: 30,
+  profileTitle: {
+    color: 'peru',
+    fontSize: 40,
+    fontWeight: '600',
+    marginBottom: 50,
   },
-  content: {
-    flex: 1,
+  header: {
     justifyContent: "center",
     alignItems: "center",
-    width: "100%",
+    marginBottom: 20,
   },
   image: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     marginBottom: 10,
+  },
+  name: {
+    fontSize: 30,
+    fontWeight: "400",
+    color: "chocolate",
   },
   changePicButton: {
     backgroundColor: "peru",
-    padding: 10,
-    borderRadius: 5,
+    padding: 8,
+    borderRadius: 8,
     marginBottom: 20,
   },
   changePicButtonText: {
@@ -250,36 +291,40 @@ const styles = StyleSheet.create({
     fontWeight: "300",
   },
   userInfo: {
+    width: "100%",
+    paddingHorizontal: 20,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  label: {
+    fontSize: 20,
+    color: "peru",
+    fontWeight: "500",
+    width: 100,
+  },
+  textInput: {
+    flex: 1,
+    backgroundColor: "white",
+    borderColor: "chocolate",
+    borderWidth: 1,
+    borderRadius: 8,
     padding: 10,
-    borderRadius: 10,
-    width: "80%",
-    maxWidth: 400,
-    marginBottom: 100,
+    color: "black",
+    fontSize: 16,
   },
-  text1: {
-    fontSize: 20,
-    marginBottom: 10,
-    fontWeight: "300",
-    color: "white",
-    backgroundColor: "peru",
-    padding: 5,
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
   },
-  text2: {
-    fontSize: 20,
-    marginBottom: 10,
-    fontWeight: "300",
-    color: "white",
-    backgroundColor: "peru",
-    padding: 5,
-  },
-  text3: {
-    fontSize: 20,
-    marginBottom: 10,
-    fontWeight: "300",
-    color: "white",
-    backgroundColor: "peru",
-    padding: 5,
+  activityContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
-export { Profile };
+export { Profile }

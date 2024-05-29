@@ -4,7 +4,7 @@ import { fetchUserDataById, fetch_media_fireStorage } from "../UserFunctions";
 import React, { useState, useCallback, useEffect } from "react";
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
 import { useRoute } from "@react-navigation/native";
-import { View, Text, Image } from "react-native";
+import { View, Text, Image,StyleSheet,ImageBackground } from "react-native";
 
 
 const Chatting = () => {
@@ -88,27 +88,67 @@ const Chatting = () => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      {otherUser && (
-        <View style={{ flexDirection: "row", padding: 30, top: 20 }}>
-          {otherUser.profilePic && (
-            <Image
-              source={{ uri: otherUser.profilePic }}
-              style={{ width: 50, height: 50, borderRadius: 30, marginRight: 10 }}
-            />
-          )}
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>{otherUser.UserName}</Text>
-        </View>
-      )}
-      <GiftedChat
-        style={{ flex: 1, backgroundColor: "yellow" }}
-        messages={messages}
-        onSend={onSend}
-        user={{ _id: senderId }}
-        renderBubble={renderBubble}
-      />
+    <View style={styles.container}>
+      <ImageBackground
+        source={require('../assets/c0.jpg')}
+        style={styles.backgroundImage}
+        blurRadius={4}
+      >
+        {otherUser && (
+          <View style={styles.userInfoContainer}>
+            {otherUser.profilePic && (
+              <Image
+                source={{ uri: otherUser.profilePic }}
+                style={styles.profileImage}
+              />
+            )}
+            <Text style={styles.userName}>{otherUser.UserName}</Text>
+          </View>
+        )}
+        <GiftedChat
+          style={styles.giftedChat}
+          messages={messages}
+          onSend={onSend}
+          user={{ _id: senderId }}
+          renderBubble={renderBubble}
+        />
+      </ImageBackground>
     </View>
   );
 };
-  
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+  },
+  userInfoContainer: {
+    flexDirection: "row",
+    padding: 30,
+    paddingTop: 20,
+    backgroundColor:'blanchedalmond'
+  },
+  profileImage: {
+    width: 49,
+    height: 50,
+    borderRadius: 30,
+    marginRight: 10,
+    top:20
+  },
+  userName: {
+    fontSize: 35,
+    fontWeight: "300",
+    color: "chocolate",
+    top: 30,
+    left: 10,
+  },
+  giftedChat: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+});
+
 export { Chatting };

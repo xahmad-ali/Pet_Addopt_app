@@ -1,4 +1,4 @@
-import { View, Text,StyleSheet,ActivityIndicator } from "react-native";
+import { View, Text,StyleSheet,ActivityIndicator,Image  } from "react-native";
 import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -87,7 +87,7 @@ const goBackTwoScreens = () => {
 };
 
 return (
-  <View style={styles.container}>
+<View style={styles.container}>
     {loading ? (
       <View style={[styles.activity, styles.horizontal]}>
         <ActivityIndicator size="large" color="peru" />
@@ -95,15 +95,18 @@ return (
     ) : (
       <View style={styles.container}>
         <TouchableOpacity onPress={pickImage}>
-          <FontAwesome5 name="folder-plus" size={86} color="black" />
+          <Image 
+          source={require("../assets/gf.png")} style={styles.iconImage} />
         </TouchableOpacity>
       </View>
     )}
   </View>
 );
-
-  
+ 
 };
+
+//<FontAwesome5 name="folder-plus" size={86} color="black" />
+
 
 
 const styles = StyleSheet.create({

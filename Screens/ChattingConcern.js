@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, Image, ActivityIndicator,ImageBackground } from "react-native";
 import React, { useState, useEffect } from "react";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import {
@@ -55,36 +55,59 @@ const ChattingConcern = ({ route }) => {
     navigation.navigate("Chatting", { senderId:userId,ownerId });
   };
   return (
+    <ImageBackground
+      source={require('../assets/5dba.jpg')}
+      style={styles.container}
+      blurRadius={1}
+    >
     <View style={styles.container}>
       {loading ? (
         <View style={[styles.activity, styles.horizontal]}>
-          <ActivityIndicator size="large" color="#00ff00" />
+          <ActivityIndicator size="large" color='peru' />
         </View>
       ) : (
         <View style={{ padding: 30 }}>
+          <View>
+            
+          </View>
           <Image
             style={styles.tinyLogo}
             source={
               imageUri ? { uri: imageUri } : require("../assets/profile.png")
             }
           />
-          <Text>Chatting Concern</Text>
-          <Text>{ownerId}</Text>
-          {userData && <Text>Owner Name: {userData.UserName}</Text>}
-          {userData && <Text>Owner Name: {userData.Email}</Text>}
+         
+     
+          {userData && <Text style ={styles.input}>Owner Name: {userData.UserName}</Text>}
+          {userData && <Text style ={styles.input}>Owner mail: {userData.Email}</Text>}
 
-          <Text>{routeAnimalId}</Text>
+        <View>
 
           <TouchableOpacity style={styles.button} onPress={goToChat}>
-            <Text>start Chatting</Text>
+            <Text style={styles.buttonText}>Chat</Text>
           </TouchableOpacity>
+          </View>
         </View>
       )}
     </View>
+  </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  pawImage: {
+    width: 50,
+    height: 50,
+    marginRight: 10,
+  },
+  title: {
+    padding:20,
+
+    fontSize: 50,
+    fontWeight: "400",
+    color: "peru",
+  },
+
   container: {
     flex: 1,
     justifyContent: "center",
@@ -96,27 +119,37 @@ const styles = StyleSheet.create({
   tinyLogo: {
     width: 100,
     height: 100,
+    borderRadius:50,
+    marginLeft:60,
+    paddingBottom:10,
+    marginBottom:15
   },
   input: {
-    width: 250,
+    width: 230,
     height: 40,
     borderWidth: 1,
-    borderColor: "gray",
+    borderColor: "peru",
     borderRadius: 5,
-    paddingHorizontal: 10,
+    padding: 10,
     marginBottom: 10,
   },
   button: {
-    width: 250,
+    width: 100,
     height: 40,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 5,
-    backgroundColor:'pink'
+    backgroundColor:'peru',
+    top:50,
+    left:58
+    
   },
   buttonText: {
     color: "white",
-    fontWeight: "bold",
+    fontWeight: "300",
+    fontSize:18,
+
+    
   },
 });
 

@@ -45,7 +45,7 @@ function MyTabs() {
           right: 0,
           borderTopWidth: 0,
           height: 60,
-          elevation: 0.3, // Android
+          elevation: 2, // Android
           shadowOpacity: 0.3, // iOS
         },
       }}

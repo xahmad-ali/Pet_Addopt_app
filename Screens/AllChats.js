@@ -6,7 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Image, // Import Image component
+  Image,
+  ImageBackground
 } from "react-native";
 import { collection, query, getDocs } from "firebase/firestore";
 import { db } from "../Firebase_File"; // Adjust the path to your Firebase configuration
@@ -19,7 +20,7 @@ const AllChats = () => {
   const [senderId, setSenderId] = useState(null);
   const [chatUsers, setChatUsers] = useState([]);
   const [imageUris, setImageUris] = useState({});
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getChatUsers = async () => {
@@ -29,7 +30,6 @@ const AllChats = () => {
           const userData = await fetchUser(storedEmail);
           if (userData) {
             await fetchChatUsers(userData.id);
-            
           }
         }
       } catch (error) {
@@ -42,10 +42,8 @@ const AllChats = () => {
 
   const fetchChatUsers = async (currentId) => {
     try {
-      // Get the current user ID
       console.log("Current User email:", currentId);
 
-      // Fetch users from Firestore
       const q = query(collection(db, "users"));
       const querySnapshot = await getDocs(q);
 
@@ -55,14 +53,11 @@ const AllChats = () => {
           id: doc.id,
           Email: doc.data().Email,
           UserName: doc.data().UserName,
-          City:doc.data().City,
-          Dob:doc.data().DOB
         });
       });
 
       console.log("Before filter:", data);
 
-      // Filter out the current user's data
       const filteredData = data.filter((user) => user.id !== currentId);
 
       console.log("Filtered Users:", filteredData);
@@ -109,28 +104,41 @@ const AllChats = () => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.item} onPress={() => goChat(item.id)}>
-      {imageUris[item.id] && (
-        <Image
-          style={styles.tinyLogo}
-          source={{ uri: imageUris[item.id] }}
-        />
-      )}
-      <Text>{item.UserName}</Text>
-      <Text>{item.Email}</Text>
-      <Text>{item.City}</Text>
-
+      <Image
+        style={styles.avatar}
+        source={
+          imageUris[item.id]
+            ? { uri: imageUris[item.id] }
+            : require("../assets/a.jpg")
+        }
+      />
+      <View style={styles.itemContent}>
+        <Text style={styles.userName}>{item.UserName}</Text>
+        <Text style={styles.userEmail}>{item.Email}</Text>
+      </View>
     </TouchableOpacity>
   );
 
   return (
+    <ImageBackground
+      source={require('../assets/91.jpg')}
+      style={styles.container}
+      blurRadius={4}
+    >
     <View style={styles.container}>
       {loading ? (
-        <View style={[styles.activity, styles.horizontal]}>
+        <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#00ff00" />
         </View>
       ) : (
         <View style={styles.container}>
-          <Text style={styles.title}>All Chats</Text>
+          <View style={styles.header}>
+            <Image 
+              source={require('../assets/paw.png')}
+              style={styles.pawImage}
+            />
+            <Text style={styles.title}>Haven Chat</Text>
+          </View>
           <FlatList
             data={chatUsers}
             keyExtractor={(item) => item.id}
@@ -139,41 +147,62 @@ const AllChats = () => {
         </View>
       )}
     </View>
+  </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+   // backgroundColor: "#fff",
   },
-  activity: {
+  loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  horizontal: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: 20,
-  },
   item: {
-    padding: 10,
-    marginVertical: 8,
-    marginHorizontal: 16,
+    flexDirection: "row",
+    padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: "gray",
+    borderTopColor:"gray",
+    alignItems: "center",
   },
-  tinyLogo: {
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
+  },
+  itemContent: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  userEmail: {
+    fontSize: 14,
+    color: "#888",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 20,
+  },
+  pawImage: {
     width: 50,
     height: 50,
     marginRight: 10,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
+    padding:20,
+
+    fontSize: 50,
+    fontWeight: "400",
+    color: "peru",
   },
 });
 

@@ -10,11 +10,14 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  Dimensions
 } from "react-native";
-import { getStorage, ref, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, getDownloadURL,deleteObject } from "firebase/storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
-import { fetchAnimalData, fetchUser,removeAnimal } from "../UserFunctions"; // Adjust the import path as needed
+import { useNavigation,useFocusEffect } from "@react-navigation/native";
+import { fetchAnimalData, fetchUser, removeAnimal } from "../UserFunctions"; // Adjust the import path as needed
+
+const { width } = Dimensions.get("window");
 
 const AdoptAnimal = () => {
   const [animals, setAnimals] = useState([]);
@@ -23,18 +26,37 @@ const AdoptAnimal = () => {
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [loggedInUserId, setLoggedInUserId] = useState(null);
+  const navigation = useNavigation();
+  const storage = getStorage();
 
   useEffect(() => {
     // Fetch animal data once
     fetchAnimalData(setAnimals, setAnimalIds);
-
     // Fetch logged-in user data
     AsyncStorage.getItem("Email").then((email) => {
       fetchUser(email).then((user) => {
         setLoggedInUserId(user.id);
       });
     });
+
+    
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Component is focused, perform any necessary actions
+      console.log('Screen is focused');
+      fetchAnimalData(setAnimals,setAnimalIds)
+
+
+      // Return a function to run when the component is unfocused
+      return () => {
+        console.log('Screen is unfocused');
+        // Perform any cleanup tasks
+      };
+    }, [])
+  );
+
 
   useEffect(() => {
     if (animalIds.length > 0) {
@@ -43,9 +65,8 @@ const AdoptAnimal = () => {
   }, [animalIds]);
 
   const fetchImageUrls = async () => {
-    const storage = getStorage();
+    setLoading(true);
     const newImageUris = {};
-
     for (const id of animalIds) {
       try {
         const storageRef = ref(storage, `AnimalMedia/${id}`);
@@ -60,12 +81,10 @@ const AdoptAnimal = () => {
         newImageUris[id] = null;
       }
     }
-
     setImageUris(newImageUris);
     setLoading(false);
   };
 
-  const navigation = useNavigation();
   const goChat = async (OwnerId, AnimalId) => {
     const email = await AsyncStorage.getItem("Email");
     const user = await fetchUser(email);
@@ -94,30 +113,25 @@ const AdoptAnimal = () => {
       { cancelable: false }
     );
   };
-  
-
-  const storage = getStorage();
 
   const confirmDelete = async (myAnimalId) => {
     console.log("Delete Pressed", myAnimalId);
     const deletion = await removeAnimal(myAnimalId);
     if (deletion) {
       console.log("deleted animalId now picture");
-  
+
       const desertRef = ref(storage, `AnimalMedia/${myAnimalId}`);
-      
+
       await deleteObject(desertRef)
         .then(() => {
-          console.log("deleted image");
+          console.log("Image is deleted successful");
+          fetchAnimalData(setAnimals,setAnimalIds)
         })
         .catch((error) => {
-          console.log("error deleting image", error);
+          console.log("error deleting Image", error);
         });
     }
   };
-  
- 
-  
 
   const filteredAnimals = animals.filter((animal) =>
     animal.AnimalType.toLowerCase().includes(searchText.toLowerCase())
@@ -126,51 +140,31 @@ const AdoptAnimal = () => {
   return (
     <ImageBackground
       source={require("../assets/e3.jpg")}
-      style={{ flex: 1, justifyContent: "center" }}
+      style={styles.background}
       blurRadius={3}
     >
-      <View style={{ flex: 1, justifyContent: "center" }}>
+      <View style={styles.overlay}>
         {loading ? (
-          <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-          >
+          <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="peru" />
           </View>
         ) : (
-          <View style={{ flex: 1, padding: 20 }}>
-            <Text
-              style={{ fontSize: 24, fontWeight: "bold", textAlign: "center" }}
-            >
-              Pet Haven Adoption
-            </Text>
+          <View style={styles.content}>
+            <Text style={styles.title}>Pet Haven Adoption</Text>
             <TextInput
-              style={{
-                height: 40,
-                borderColor: "gray",
-                borderWidth: 1,
-                borderRadius: 5,
-                marginTop: 10,
-                paddingHorizontal: 10,
-              }}
+              style={styles.searchBar}
               placeholder="Search by type"
               value={searchText}
               onChangeText={setSearchText}
             />
             <FlatList
-              style={{ marginTop: 20 }}
+              style={styles.flatList}
               data={filteredAnimals}
               renderItem={({ item }) => (
-                <View
-                  style={{
-                    padding: 10,
-                    backgroundColor: "#fff",
-                    marginBottom: 10,
-                    borderRadius: 10,
-                  }}
-                >
+                <View style={styles.animalItem}>
                   {imageUris[item.id] && (
                     <Image
-                      style={{ width: "100%", height: 200, borderRadius: 10 }}
+                      style={styles.animalImage}
                       source={{ uri: imageUris[item.id] }}
                     />
                   )}
@@ -179,26 +173,23 @@ const AdoptAnimal = () => {
                       goChat(item.OwnerId, item.id);
                     }}
                   >
-                    <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-                      {item.AnimalName}
+                    <Text style={styles.animalName}>{item.AnimalName}</Text>
+                    <Text style={styles.animalDetails}>
+                      Type: {item.AnimalType}
                     </Text>
-                    <Text>Type: {item.AnimalType}</Text>
-                    <Text>Breed: {item.AnimalBreed}</Text>
-                    <Text>Age: {item.AnimalAge}</Text>
+                    <Text style={styles.animalDetails}>
+                      Breed: {item.AnimalBreed}
+                    </Text>
+                    <Text style={styles.animalDetails}>
+                      Age: {item.AnimalAge}
+                    </Text>
                   </TouchableOpacity>
                   {loggedInUserId === item.OwnerId && (
                     <TouchableOpacity
                       onPress={() => handleDeletePress(item.id)}
-                      style={{
-                        backgroundColor: "peru",
-                        padding: 10,
-                        borderRadius: 5,
-                        marginTop: 10,
-                      }}
+                      style={styles.deleteButton}
                     >
-                      <Text style={{ color: "#fff", textAlign: "center" }}>
-                        Delete
-                      </Text>
+                      <Text style={styles.deleteButtonText}>Delete</Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -213,36 +204,45 @@ const AdoptAnimal = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   content: {
     flex: 1,
-    padding: 10,
   },
   title: {
-    padding: 30,
-    fontSize: 40,
+    paddingVertical: 30,
+    fontSize: 30,
     textAlign: "center",
     color: "peru",
-    fontWeight: "300",
+    fontWeight: "400",
   },
   searchBar: {
     height: 40,
     borderColor: "gray",
     borderWidth: 1,
     borderRadius: 5,
-    marginBottom: 10,
+    marginBottom: 20,
     paddingHorizontal: 10,
   },
   flatList: {
     borderRadius: 10,
   },
   animalItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
     padding: 10,
+    backgroundColor: "#fff",
     marginBottom: 10,
     borderRadius: 10,
     shadowColor: "#000",
@@ -250,36 +250,29 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
   },
-  tinyLogo: {
-    width: 80,
-    height: 80,
+  animalImage: {
+    width: "100%",
+    height: 200,
     borderRadius: 10,
-    marginRight: 10,
   },
   animalName: {
     fontSize: 20,
-    fontWeight: "400",
-    fontSize: 32,
+    fontWeight: "bold",
+    marginTop: 10,
+  },
+  animalDetails: {
+    fontSize: 16,
+    marginTop: 5,
   },
   deleteButton: {
-    marginLeft: 100,
     backgroundColor: "peru",
-    padding: 5,
+    padding: 10,
     borderRadius: 5,
+    marginTop: 10,
   },
   deleteButtonText: {
-    color: "white",
-    fontWeight: "400",
-  },
-  activity: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  horizontal: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: 10,
+    color: "#fff",
+    textAlign: "center",
   },
 });
 
